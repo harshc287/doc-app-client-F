@@ -6,11 +6,12 @@ import { getLoggedUser } from '../api/userAPI';
 
 // import pages (example)
 import Profile from '../components/Profile'
-import Appointments from '../components/Appointments'
-import CreateAppointment from '../components/CreateAppointment'
-import DoctorsList from '../components/DoctorsList'
-import UsersList from '../components/UsersList'
+import Appointments from '../components/Appoinments'
+import CreateAppointment from '../components/CreateAppoinment'
+import DoctorsList from '../components/DoctorList'
+import UsersList from '../components/UserList'
 import ApplyDoctor from '../components/ApplyDoctor'
+import DoctorAppointments from '../components/DoctorAppointments';
 
 
 
@@ -23,7 +24,7 @@ const DashboardNavbar = () => {
 
 
   function handleLogout(){
-    localStorage.removeItem('token6163')
+    localStorage.removeItem('token63')
     navigate('/',replace)
   }
 
@@ -33,9 +34,19 @@ async function fetchUser(){
     setUser(res.data.user)
   }
 }
-  useEffect(()=>{
-    fetchUser()
-  },[])
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await getLoggedUser();
+      if (res.data.success) {
+        setUser(res.data.user); // ✅ YOU WERE MISSING THIS
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  fetchUser();
+}, []);
 
 /* ======================
      ROLE BASED CONTENT
@@ -48,7 +59,7 @@ async function fetchUser(){
         return <Profile />
 
       case "appointments":
-        return <Appointments />
+        return <DoctorAppointments />
 
       case "create-appointment":
         return <CreateAppointment />
@@ -91,7 +102,6 @@ async function fetchUser(){
       return (
         <>
           <MenuBtn label="Profile" onClick={() => setActivePage("profile")} />
-          <MenuBtn label="Create Appointment" icon={<FaPlus />} onClick={() => setActivePage("create-appointment")} />
           <MenuBtn label="Appointments" icon={<FaCalendarAlt />} onClick={() => setActivePage("appointments")} />
         </>
       )

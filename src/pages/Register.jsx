@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { registerUser } from "../api/userAPI";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const RegisterPage = () => {
@@ -12,24 +12,26 @@ const RegisterPage = () => {
     address: "",
   });
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Register Data:", formData);
-    const res = await registerUser(formData)
-    if(res.data.success){
-        toast.success(res.data.msg)
-        navigate('/')
-    }else{
-        toast.error(res.data.msg)
+
+    try {
+      const res = await registerUser(formData);
+
+      if (res.data.success) {
+        toast.success(res.data.msg);
+        navigate("/");
+      } else {
+        toast.error(res.data.msg);
+      }
+    } catch (err) {
+      toast.error("Registration failed");
     }
   };
 
@@ -37,41 +39,41 @@ const RegisterPage = () => {
     <div className="container mt-5">
       <div className="row justify-content-center">
         <div className="col-md-6">
-          <div className="card shadow">
-            <div className="card-header text-center">
-              <h4>Register</h4>
+          <div className="card shadow-lg border-0 rounded-4">
+            <div className="card-header text-center bg-success text-white rounded-top-4">
+              <h4 className="mb-0">Create Account ✨</h4>
             </div>
 
-            <div className="card-body">
+            <div className="card-body p-4">
               <form onSubmit={handleSubmit}>
-                
-                {/* Name */}
-                <div className="mb-3">
-                  <label className="form-label">Name *</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                  />
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Name</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Email</label>
+                    <input
+                      type="email"
+                      className="form-control"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
                 </div>
 
-                {/* Email */}
                 <div className="mb-3">
-                  <label className="form-label">Email</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                {/* Password */}
-                <div className="mb-3">
-                  <label className="form-label">Password *</label>
+                  <label className="form-label">Password</label>
                   <input
                     type="password"
                     className="form-control"
@@ -82,7 +84,6 @@ const RegisterPage = () => {
                   />
                 </div>
 
-                {/* Contact Number */}
                 <div className="mb-3">
                   <label className="form-label">Contact Number</label>
                   <input
@@ -94,24 +95,29 @@ const RegisterPage = () => {
                   />
                 </div>
 
-                {/* Address */}
                 <div className="mb-3">
                   <label className="form-label">Address</label>
                   <textarea
                     className="form-control"
-                    name="address"
                     rows="3"
+                    name="address"
                     value={formData.address}
                     onChange={handleChange}
                   ></textarea>
                 </div>
 
-                {/* Submit */}
-                <button type="submit" className="btn btn-primary w-100">
+                <button type="submit" className="btn btn-success btn-lg w-100">
                   Register
                 </button>
-
               </form>
+
+              {/* 🔹 LOGIN LINK */}
+              <div className="text-center mt-4">
+                <span className="text-muted">Already have an account?</span>{" "}
+                <Link to="/" className="fw-semibold text-success">
+                  Login here
+                </Link>
+              </div>
             </div>
           </div>
         </div>
