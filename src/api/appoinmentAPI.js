@@ -17,3 +17,11 @@ export const updateAppointmentStatus = (id, status) =>{
 export const showAppointmentsOfDoctor = () =>{
     return axiosInstance.get("/appointment/showAppointmentsOfDoctor");
 }
+
+export const updateAppointment  =(id, data) => {
+    return axiosInstance.put(`/appointment/updateAppointment/${id}`, data)
+}
+
+export const deleteAppointment = (id) => {
+  return axiosInstance.delete(`/appointment/deleteAppointment/${id}`);
+};

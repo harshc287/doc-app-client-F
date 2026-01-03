@@ -1,90 +1,56 @@
 import React, { useEffect, useState } from 'react'
-import { FaSignOutAlt, FaTasks, FaUsers, FaPlus , FaUserMd, FaCalendarAlt } from "react-icons/fa";
-import { Link, replace, useNavigate } from "react-router-dom";
+import { FaSignOutAlt, FaUsers, FaPlus, FaUserMd, FaCalendarAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { getLoggedUser } from '../api/userAPI';
 
-
-// import pages (example)
 import Profile from '../components/Profile'
 import Appointments from '../components/Appoinments'
 import CreateAppointment from '../components/CreateAppoinment'
 import DoctorsList from '../components/DoctorList'
 import UsersList from '../components/UserList'
 import ApplyDoctor from '../components/ApplyDoctor'
-import DoctorAppointments from '../components/DoctorAppointments';
-
-
-
 
 const DashboardNavbar = () => {
-  const [user,setUser] = useState()
+  const [user, setUser] = useState(null)
+  const [activePage, setActivePage] = useState("dashboard")
   const navigate = useNavigate()
 
- const [activePage, setActivePage] = useState("dashboard");
-
-
-  function handleLogout(){
-    localStorage.removeItem('token63')
-    navigate('/',replace)
-  }
-
-async function fetchUser(){
-  const res = await getLoggedUser()
-  if(res.data.success){
-    setUser(res.data.user)
-  }
-}
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const res = await getLoggedUser();
-      if (res.data.success) {
-        setUser(res.data.user); // ✅ YOU WERE MISSING THIS
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await getLoggedUser()
+        if (res.data.success) {
+          setUser(res.data.user)
+        }
+      } catch (err) {
+        console.error(err)
       }
-    } catch (err) {
-      console.error(err);
     }
-  };
-  fetchUser();
-}, []);
+    fetchUser()
+  }, [])
 
-/* ======================
-     ROLE BASED CONTENT
-  =======================*/
+  const handleLogout = () => {
+    localStorage.removeItem('token63')
+    navigate('/', { replace: true })
+  }
+
   const renderContent = () => {
     if (!user) return null
 
     switch (activePage) {
-      case "profile":
-        return <Profile />
-
-      case "appointments":
-        return <DoctorAppointments />
-
-      case "create-appointment":
-        return <CreateAppointment />
-
-      case "doctors":
-        return <DoctorsList />
-
-      case "users":
-        return <UsersList />
-
-      case "apply-doctor":
-        return <ApplyDoctor />
-
-      default:
-        return <h4>Welcome to Dashboard</h4>
+      case "profile": return <Profile />
+      case "appointments": return <Appointments />
+      case "create-appointment": return <CreateAppointment />
+      case "doctors": return <DoctorsList />
+      case "users": return <UsersList />
+      case "apply-doctor": return <ApplyDoctor />
+      default: return <h4>Welcome to Dashboard</h4>
     }
   }
 
-  /* ======================
-     ROLE BASED MENU
-  =======================*/
   const renderMenu = () => {
     if (!user) return null
 
-    // ADMIN MENU
     if (user.role === "Admin") {
       return (
         <>
@@ -97,7 +63,6 @@ useEffect(() => {
       )
     }
 
-    // DOCTOR MENU
     if (user.role === "Doctor") {
       return (
         <>
@@ -107,7 +72,6 @@ useEffect(() => {
       )
     }
 
-    // USER MENU
     return (
       <>
         <MenuBtn label="Profile" onClick={() => setActivePage("profile")} />
@@ -118,34 +82,24 @@ useEffect(() => {
     )
   }
 
-
-
   return (
- <div className="container-fluid">
+    <div className="container-fluid">
       <div className="row" style={{ minHeight: "100vh" }}>
-        
-        {/* Sidebar */}
+
         <div className="col-md-3 col-lg-2 bg-dark text-white p-3">
-          <h5 className="text-center mb-4">👤 {user? user.name : 'user'}</h5>
+          <h5 className="text-center mb-4">👤 {user?.name}</h5>
 
-        <ul className="nav flex-column">
+          <ul className="nav flex-column">
             {renderMenu()}
-
             <hr />
-
             <li className="nav-item">
-              <button
-                className="btn btn-danger w-100 text-start"
-                onClick={handleLogout}
-              >
-                <FaSignOutAlt className="me-2" />
-                Logout
+              <button className="btn btn-danger w-100 text-start" onClick={handleLogout}>
+                <FaSignOutAlt className="me-2" /> Logout
               </button>
             </li>
           </ul>
         </div>
 
-        {/* Main Content */}
         <div className="col-md-9 col-lg-10 p-4 bg-light">
           {renderContent()}
         </div>
@@ -155,9 +109,6 @@ useEffect(() => {
   )
 }
 
-/* ======================
-   REUSABLE MENU BUTTON
-======================*/
 const MenuBtn = ({ label, icon, onClick }) => (
   <li className="nav-item mb-2">
     <button className="btn btn-dark w-100 text-start" onClick={onClick}>
@@ -166,7 +117,5 @@ const MenuBtn = ({ label, icon, onClick }) => (
     </button>
   </li>
 )
-
-
 
 export default DashboardNavbar

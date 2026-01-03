@@ -18,3 +18,12 @@ export const getLoggedUser = () => {
 export const getDoctorList = () =>{
     return axiosInstance.get("/user/doctorList")
 }
+
+
+export const uploadProfileImage = (formData) => {
+  return axiosInstance.post("/user/upload-profile", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+

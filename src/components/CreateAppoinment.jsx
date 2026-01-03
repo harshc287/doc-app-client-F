@@ -1,82 +1,93 @@
-import React, {useState, useEffect} from 'react'
-import { getDoctorList } from '../api/userAPI'
-import { saveAppointment } from '../api/appoinmentAPI'
+import React, { useEffect, useState } from "react";
+import { getDoctorList } from "../api/userAPI";
+import { saveAppointment } from "../api/appoinmentAPI";
 
+const CreateAppointment = () => {
+  const [doctors, setDoctors] = useState([]);
+  const [doctorId, setDoctorId] = useState("");
+  const [dateTime, setDateTime] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-const CreateAppoinment = () => {
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
 
-    const [doctors,setDoctors] = useState([])
-    const [dateTimeInput, setDateTimeInput] = useState("")
-    const [doctorID, setDoctorId] = useState("")
-  
-
-    async function fetchData(){
-        const res = await getDoctorList()
-        if(res.data.success){
-            setDoctors(res.data.doctors)
-        }
+  const fetchDoctors = async () => {
+    try {
+      const res = await getDoctorList();
+      if (res.data.success) {
+        setDoctors(res.data.doctors);
+      }
+    } catch {
+      setError("Failed to load doctors");
     }
-    useEffect(()=>{
-      fetchData()
-    },[])
-    
+  };
 
-function handleSubmit(e) {
-    e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
 
-    if (!dateTimeInput || !doctorID) {
-      alert("Please select date & doctor")
-      return
+    if (!doctorId || !dateTime) {
+      setError("Please select doctor & date");
+      return;
     }
 
-    saveAppointment({
-      dateTime: dateTimeInput,
-      doctorId: doctorID
-      
-    })
-    alert("Appointment created");
-  }
+    try {
+      setLoading(true);
+      await saveAppointment({ doctorId, dateTime });
+      alert("✅ Appointment created successfully");
+      setDoctorId("");
+      setDateTime("");
+    } catch (err) {
+      setError(err.response?.data?.msg || "Creation failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-  <div className="card p-4">
-      <h4>Create Appointment</h4>
+    <div className="container col-md-6">
+      <div className="card shadow-sm p-4">
+        <h4 className="mb-3">📅 Create Appointment</h4>
 
-      <form onSubmit={handleSubmit}>
+        {error && <div className="alert alert-danger">{error}</div>}
 
-        {/* Date & Time */}
-        <div className="mb-3">
-          <label className="form-label">Select Date & Time</label>
-          <input
-            type="datetime-local"
-            className="form-control"
-            value={dateTimeInput}
-            onChange={(e) => setDateTimeInput(e.target.value)}
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label">Doctor</label>
+            <select
+              className="form-select"
+              value={doctorId}
+              onChange={(e) => setDoctorId(e.target.value)}
+            >
+              <option value="">-- Select Doctor --</option>
+              {doctors.map((doc) => (
+                <option key={doc.id} value={doc.id}>
+                  {doc.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Doctor List */}
-        <div className="mb-3">
-          <label className="form-label">Select Doctor</label>
-          <select
-            className="form-select"
-            value={doctorID}
-            onChange={(e) => setDoctorId(e.target.value)}
-          >
-            <option value="">-- Select Doctor --</option>
-            {doctors.map((doc) => (
-              <option key={doc.id} value={doc.id}>
-                {doc.name}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div className="mb-3">
+            <label className="form-label">Date & Time</label>
+            <input
+              type="datetime-local"
+              className="form-control"
+              value={dateTime}
+              onChange={(e) => setDateTime(e.target.value)}
+              min={new Date().toISOString().slice(0, 16)}
+            />
+          </div>
 
-        <button type="submit" className="btn btn-primary">
-          Create Appointment
-        </button>
-      </form>
+          <button className="btn btn-primary w-100" disabled={loading}>
+            {loading ? "Creating..." : "Create Appointment"}
+          </button>
+        </form>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default CreateAppoinment
+export default CreateAppointment;
