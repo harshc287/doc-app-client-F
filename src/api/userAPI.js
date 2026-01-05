@@ -26,4 +26,8 @@ export const uploadProfileImage = (formData) => {
   });
 };
 
+export const getAllUsers = () => {
+  return axiosInstance.get("/user/getAllUsers");
+};
+
 
